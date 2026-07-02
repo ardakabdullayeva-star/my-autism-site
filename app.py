@@ -51,7 +51,7 @@ if st.session_state.logged_in:
     with tabs[0]:
         child_id = st.text_input("Идентификатор ученика (ФИО)", "Иванов Иван")
         st.write("---")
-        
+
         score = 0
         details_list = []
 
@@ -141,15 +141,15 @@ if st.session_state.logged_in:
         conn = sqlite3.connect('school_consilium_final_v3.db')
         all_data = pd.read_sql_query("SELECT * FROM reports", conn)
         conn.close()
-        
+
         if not all_data.empty:
             target_child = st.selectbox("Выберите ученика", all_data['child_id'].unique())
             child_results = all_data[all_data['child_id'] == target_child]
-            
+
             # Проверка полноты данных
             roles_submitted = child_results['role'].unique()
             missing = [r for r in REQUIRED_ROLES if r not in roles_submitted]
-            
+
             st.write("**Статус готовности данных:**")
             cols = st.columns(len(REQUIRED_ROLES))
             for i, r in enumerate(REQUIRED_ROLES):
@@ -159,7 +159,7 @@ if st.session_state.logged_in:
                 st.success("✅ Все данные собраны. ИИ готов к формированию протокола.")
                 if st.button("🤖 Сгенерировать Протокол и Рекомендации"):
                     total_score = child_results['score'].sum()
-                    
+
                     # Логика ИИ-интерпретации
                     if total_score >= 20:
                         risk_level = "ВЫСОКИЙ"
@@ -179,13 +179,12 @@ if st.session_state.logged_in:
 """
                     for _, row in child_results.iterrows():
                         final_report += f"- {row['role']} ({row['specialist_name']}): {row['details']} (Балл: {row['score']})\n"
-                    
+
                     final_report += f"""
 --------------------------------------------------
 ЗАКЛЮЧЕНИЕ ИИ-ПОМОЩНИКА:
 Общий суммарный балл: {total_score}
 Уровень риска: {risk_level}
-
 РЕКОМЕНДАЦИИ:
 {advice}
 --------------------------------------------------
